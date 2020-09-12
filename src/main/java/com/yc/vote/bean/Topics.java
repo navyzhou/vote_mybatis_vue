@@ -1,7 +1,12 @@
 package com.yc.vote.bean;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+
+import com.yc.vote.util.StringUtil;
 
 /**
  * company 源辰信息
@@ -18,6 +23,8 @@ public class Topics implements Serializable{
 	private String sdate;
 	private String edate;
 	private String usids;
+	private Integer status = 0;  // 1、未开始   2、已结束    3、已投票
+	private Integer count = 0;
 	
 	private String uname; // 用户名
 	private List<TopicItem> topicItems;
@@ -26,6 +33,22 @@ public class Topics implements Serializable{
 	public String toString() {
 		return "Topics [tid=" + tid + ", tname=" + tname + ", types=" + types + ", usid=" + usid + ", sdate=" + sdate
 				+ ", edate=" + edate + ", usids=" + usids + ", uname=" + uname + "]";
+	}
+	
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 	public String getTid() {
@@ -66,6 +89,18 @@ public class Topics implements Serializable{
 
 	public void setSdate(String sdate) {
 		this.sdate = sdate;
+		
+		try {
+			// 判断是否已经开始投票了
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			Date date = sdf.parse(sdate);
+			Date date1 = new Date();
+			if (date.after(date1)) { // 如果开始投票的日期在当前日期之后，说明还没开始
+				this.status = 1;
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getEdate() {
@@ -74,6 +109,18 @@ public class Topics implements Serializable{
 
 	public void setEdate(String edate) {
 		this.edate = edate;
+		
+		try {
+			// 判断是否已经开始投票了
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			Date date = sdf.parse(edate);
+			Date date1 = new Date();
+			if (date.before(date1)) { // 如果结束投票的日期在当前日期之后，说明还没开始
+				this.status = 2;
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getUsids() {
@@ -81,7 +128,14 @@ public class Topics implements Serializable{
 	}
 
 	public void setUsids(String usids) {
+		if (!StringUtil.checkNull(usids)) {
+			usids = usids.substring(1);
+		}
 		this.usids = usids;
+		
+		if (!StringUtil.checkNull(usids)) {
+			this.count = usids.split("&").length;
+		}
 	}
 
 	public String getUname() {

@@ -65,9 +65,21 @@ public class TopicsBizImpl implements ITopicsBiz{
 	}
 
 	@Override
-	public int update(Map<String, Object> map) {
+	public int update(String tid, int usid, String inos) {
+		if (StringUtil.checkNull(tid, inos)) {
+			return -1;
+		}
 		IBaseDao baseDao = new BaseDaoImpl();
-		return baseDao.update("Topics.update", map);
+		List<String> sqlIds = Arrays.asList("Topics.update", "TopicItem.update");
+		List<Object> params = new ArrayList<Object>();
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("usid", usid);
+		map.put("tid", tid);
+		
+		params.add(map);
+		params.add(inos.split(","));
+		return baseDao.update(sqlIds, params);
 	}
 
 }

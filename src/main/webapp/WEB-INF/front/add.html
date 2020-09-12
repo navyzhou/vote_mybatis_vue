@@ -49,11 +49,10 @@ function DelOption(e)
 <div id="navbar" class="wrap">
 	<div class="profile">
 		<b v-if="loginStatus">您好，{{user.uname}}</b>
-		<b v-else><a href="login.html">请先登录</a></b>
-		
-		<span class="return"><a href="view.html">返回列表</a></span>
-		<span class="addnew"><a href="add.html">添加新投票</a></span>
-		<span class="modify"><a href="manage.html">维护</a></span>	
+		<b v-else>您好，<a href="login.html">请先登录</a></b>
+		<span class="return"><a href="front/view.html">返回列表</a></span>
+		<span class="addnew"><a href="front/add.html">添加新投票</a></span>
+		<span class="modify"><a href="manage.html">维护</a></span>
 	</div>
 	<div class="search">
 		<form method="post" action="">

@@ -30,18 +30,29 @@
 <div id="vote" class="wrap">
 	<h2>投票列表</h2>
 	<ul class="list">
-		<li class="odd" v-for="(item, index) in topics" v-if="index % 2 == 0">
-			<div >
-			<h4><a href="#">{{item.tname}}</a></h4>
-			<div class="join"><a href="#">我要参与</a></div>
-			<p class="info">共有  {{item.usid}} 个选项，已有  个网友参与了投票。</p>
+		<li :class="{odd: index % 2 == 0}" v-for="(item, index) in topics">
+			<div v-if="item.status == 1">
+				<h4><a href="javascript:void(0)">{{item.tname}}</a></h4>
+				<div class="join"><a href="javascript:void(0)">暂未开启</a></div>
+				<p class="info">共有  {{item.usid}} 个选项，已有0个网友参与了投票。</p>
 			</div>
-		</li>
-		<li v-else>
-			<div>
-			<h4><a href="#">{{item.tname}}</a></h4>
-			<div class="join"><a href="#">我要参与</a></div>
-			<p class="info">共有 {{item.usid}} 个选项，已有  个网友参与了投票。</p>
+			
+			<div v-else-if="item.status == 2">
+				<h4><a :href="'front/view.html?' + item.tid">{{item.tname}}</a></h4>
+				<div class="join"><a :href="'front/view.html?' + item.tid">查看投票</a></div>
+				<p class="info">共有  {{item.usid}} 个选项，已有 {{item.count}}个网友参与了投票。</p>
+			</div>
+			
+			<div v-else-if="item.status == 3">
+				<h4><a :href="'front/view.html?' + item.tid">{{item.tname}}</a></h4>
+				<div class="join"><a :href="'front/view.html?' + item.tid">查看投票</a></div>
+				<p class="info">共有  {{item.usid}} 个选项，已有{{item.count}}个网友参与了投票。</p>
+			</div>
+			
+			<div v-else>
+				<h4><a :href="'front/vote.html?' + item.tid">{{item.tname}}</a></h4>
+				<div class="join"><a :href="'front/vote.html?' + item.tid">参与投票</a></div>
+				<p class="info">共有  {{item.usid}} 个选项，已有{{item.count}}个网友参与了投票。</p>
 			</div>
 		</li>
 	</ul>
@@ -60,11 +71,21 @@
 let app = new Vue({
 	el: "#vote",
 	data: {
-		topics: []
+		topics: [],
+		myStatus: [],
 	},
 	mounted: function() {
 		axios.get("topic", {params:{op:"findAll"}}).then(result => {
 			if (result.status == 200 && result.data.code == 200) {
+				result.data.data.forEach(function(item, index) {
+					if (item.usids) { // 说明已经有人投票了
+						let temp = item.usids.split("&"); // 投票的人是不是你
+						
+						if ($.inArray(String(login_info.$data.user.usid), temp) >= 0) {
+							item.status = 3;
+						}
+					}
+				})
 				this.topics = result.data.data;
 			}
 		})

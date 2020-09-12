@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <title>在线投票系统</title>
+<base href="../">
 <link type="image/x-icon" href="images/yc.png" rel="shortcut icon"/>
 <link type="text/css" rel="stylesheet" href="css/style.css" />
 </head>
@@ -15,9 +16,10 @@
 </div>
 <div id="navbar" class="wrap">
 	<div class="profile">
-		您好，a
-		<span class="return"><a href="view.html">返回列表</a></span>
-		<span class="addnew"><a href="add.html">添加新投票</a></span>
+		<b v-if="loginStatus">您好，{{user.uname}}</b>
+		<b v-else>您好，<a href="login.html">请先登录</a></b>
+		<span class="return"><a href="front/view.html">返回列表</a></span>
+		<span class="addnew"><a href="front/add.html">添加新投票</a></span>
 		<span class="modify"><a href="manage.html">维护</a></span>
 		
 	</div>
@@ -32,24 +34,14 @@
 	<h2>参与投票</h2>
 	<ul class="list">
 		<li>
-			<h4>放松放松地方</h4>
-			<p class="info">共有 5 个选项，已有 0 个网友参与了投票。</p>
-			<form method="post" action="">
-			    <input type="hidden" name="entityId" value="103"/> 
-				<ol>
-				   
-					<li><input type="checkbox" name="options"  value="380"/>费大幅</li>
-				   
-					<li><input type="checkbox" name="options"  value="381"/>奋斗</li>
-				   
-					<li><input type="checkbox" name="options"  value="382"/>辅导费</li>
-				   
-					<li><input type="checkbox" name="options"  value="383"/>好</li>
-				   
-					<li><input type="checkbox" name="options"  value="384"/>火锅</li>
-				  	
+			<h4>{{topic.tname}}</h4>
+			<p class="info">共有 {{count}} 个选项，已有 {{topic.count}} 个网友参与了投票。</p>
+			<form onsubmit="return false">
+				<ol id="item_list">
+					<li v-for="item in topic.topicItems" v-if="topic.types == 1"><input type="radio" name="options" value="380" :data-ino="item.ino"/>{{item.iname}}</li>
+					<li v-else><input type="checkbox" name="options" value="380" :data-ino="item.ino"/>{{item.iname}}</li>
 				</ol>
-				<p class="voteView"><input type="image" src="images/button_vote.gif" /><a href="Vote!view.action?entityId=103"><img src="images/button_view.gif" /></a></p>
+				<p class="voteView"><input type="image" src="images/button_vote.gif" @click="addVote"/><a href="manage.html"><img src="images/button_view.gif" /></a></p>
 			</form>
 		</li>
 	</ul>
@@ -57,5 +49,57 @@
 <div id="footer" class="wrap">
 	源辰信息 &copy; 版权所有
 </div>
+<script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/qs.js"></script>
+<script type="text/javascript" src="js/axios.js"></script>
+<script type="text/javascript" src="js/checklogin.js"></script>
+<script type="text/javascript">
+let app = new Vue({
+	el: "#vote",
+	data: {
+		topic: {},
+		tid: "",
+		count: 0
+	},
+	mounted: function() {
+		let tid = location.search.replace("?", "");
+		if (!tid) {
+			location.href="manage.html";
+			return;
+		}
+		this.tid = tid;
+		axios.post("topic", qs.stringify({op:"findByTid", tid:tid})).then(result => {
+			if (result.status == 200 && result.data.code == 200) {
+				this.topic = result.data.data;
+				this.count = this.topic.topicItems.length;
+				return;
+			}
+			location.href="manage.html";
+		})
+	},
+	methods: {
+		addVote: function() {
+			var tids = [];
+			$("#item_list input:checked").each(function(index, item) {
+				tids.push($(item).data("ino"));
+			})
+			if (!tids || tids.length <= 0) {
+				alert("请选择您的投票项...");
+				return;
+			}
+			
+			axios.post("topic", qs.stringify({op:"vote", tid:this.tid, inos: tids.join(",")})).then(result => {
+				if (result.status == 200 && result.data.code == 200) {
+					alert("投票成功...");
+					location.href="manage.html";
+					return;
+				}
+				alert("投票失败，请稍后重试...");
+			})
+		}
+	}
+})
+</script>
 </body>
 </html>

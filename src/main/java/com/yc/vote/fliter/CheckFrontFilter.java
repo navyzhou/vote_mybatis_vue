@@ -32,12 +32,10 @@ public class CheckFrontFilter implements Filter {
 		
 		// 获取用户请求的资源路径
 		String path = request.getRequestURI(); // /snacknet/front/cart.html
-		
 		// 获取项目名
 		String projectName = request.getContextPath(); // /snackent
 		
-		path = path.replace(projectName, ""); // /front/cart.html
-		
+		path = path.replaceFirst(projectName, ""); // /front/cart.html
 		// 内部转发进去
 		request.getRequestDispatcher("../WEB-INF" + path).forward(request, response);
 	}

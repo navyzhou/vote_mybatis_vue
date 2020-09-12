@@ -23,7 +23,7 @@ create table if not exists topics(
 create table if not exists topicItem(
 	ino int(11) primary key auto_increment,
 	tid varchar(100),
-	iname varchar(200) not null unique,
+	iname varchar(200) not null,
 	nums int(11),
 	constraint FK_topicItem_tid foreign key(tid) references topics(tid)
 ) ENGINE=InnoDB auto_increment=1 default charset=utf8 collate=utf8_bin;
