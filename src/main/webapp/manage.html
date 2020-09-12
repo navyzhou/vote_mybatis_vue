@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>在线投票系统</title>
+<link type="image/x-icon" href="images/yc.png" rel="shortcut icon"/>
+<link type="text/css" rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="header" class="wrap">
+	<img src="images/logo.gif" />
+</div>
+<div id="navbar" class="wrap">
+	<div class="profile">
+		<b v-if="loginStatus">您好，{{user.uname}}</b>
+		<b v-else>您好，<a href="login.html">请先登录</a></b>
+		<span class="return"><a href="front/view.html">返回列表</a></span>
+		<span class="addnew"><a href="front/add.html">添加新投票</a></span>
+		<span class="modify"><a href="manage.html">维护</a></span>
+		
+	</div>
+	<div class="search">
+		<form method="post" action="Subject!search.action">
+			<input type="text" name="keywords" class="input-text" value=""/><input type="submit" name="submit" class="input-button" value="" />
+		</form>
+	</div>
+</div>
+
+<div id="vote" class="wrap">
+	<h2>投票列表</h2>
+	<ul class="list">
+		<li class="odd" v-for="(item, index) in topics" v-if="index % 2 == 0">
+			<div >
+			<h4><a href="#">{{item.tname}}</a></h4>
+			<div class="join"><a href="#">我要参与</a></div>
+			<p class="info">共有  {{item.usid}} 个选项，已有  个网友参与了投票。</p>
+			</div>
+		</li>
+		<li v-else>
+			<div>
+			<h4><a href="#">{{item.tname}}</a></h4>
+			<div class="join"><a href="#">我要参与</a></div>
+			<p class="info">共有 {{item.usid}} 个选项，已有  个网友参与了投票。</p>
+			</div>
+		</li>
+	</ul>
+</div>
+
+<div id="footer" class="wrap">
+	源辰信息 &copy; 版权所有
+</div>
+
+<script type="text/javascript" src="js/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/qs.js"></script>
+<script type="text/javascript" src="js/axios.js"></script>
+<script type="text/javascript" src="js/checklogin.js"></script>
+<script type="text/javascript">
+let app = new Vue({
+	el: "#vote",
+	data: {
+		topics: []
+	},
+	mounted: function() {
+		axios.get("topic", {params:{op:"findAll"}}).then(result => {
+			if (result.status == 200 && result.data.code == 200) {
+				this.topics = result.data.data;
+			}
+		})
+	}
+})
+</script>
+</body>
+</html>
