@@ -1,76 +1,55 @@
 package com.yc.vote.controller;
 
 import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.yc.vote.bean.Topics;
 import com.yc.vote.bean.UserInfo;
 import com.yc.vote.biz.ITopicsBiz;
-import com.yc.vote.biz.impl.TopicsBizImpl;
-import com.yc.vote.util.RequestParamUtil;
+import com.yc.vote.vo.ResultVO;
 
-@WebServlet("/topic")
-public class TopicController extends BasicController{
-	private static final long serialVersionUID = 5965931172616878381L;
+@RestController // 相当于 @Controller + @ResponseBody  说明这个类中的所有方法都是以json格式返回数据
+@RequestMapping("/topic")
+public class TopicController{
+	@Autowired
+	private ITopicsBiz topicBizImpl;
 
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String op = request.getParameter("op");
-		
-		switch (op) {
-		case "add": add(request, response); break;
-		case "findAll": findAll(request, response); break;
-		case "findByTid": findByTid(request, response); break;
-		case "vote": vote(request, response); break;
-		default: error(request, response); break;
-		}
-	}
-
-	private void vote(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Object obj = request.getSession().getAttribute("currentLoginUser");
+	@PostMapping("/vote")
+	public ResultVO vote(HttpSession session, String tid, String inos) throws IOException {
+		Object obj = session.getAttribute("currentLoginUser");
 		if (obj == null) {
-			this.send(response, 500, null);
-			return;
+			return new ResultVO(500);
 		}
-		String tid = request.getParameter("tid");	
 		int usid = ((UserInfo)obj).getUsid();	
-		String inos = request.getParameter("inos");	
-		
-		ITopicsBiz topicBiz = new TopicsBizImpl();
-		if (topicBiz.update(tid, usid, inos) > 0) {
-			this.send(response, 200, null);
-			return;
+		if (topicBizImpl.update(tid, usid, inos) > 0) {
+			return new ResultVO(200);
 		}
-		this.send(response, 501, null);
+		return new ResultVO(500);
 	}
 
-	private void findByTid(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String tid = request.getParameter("tid");
-		ITopicsBiz topicBiz = new TopicsBizImpl();
-		Topics topic = topicBiz.findByTid(tid);
+	@PostMapping("/findByTid")
+	public ResultVO findByTid(String tid)  {
+		Topics topic = topicBizImpl.findByTid(tid);
 		if (topic != null) {
-			this.send(response, 200, topic);
-			return;
+			return new ResultVO(200, topic);
 		}
-		this.send(response, 500, null);
+		return new ResultVO(500);
 	}
 
-	private void findAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ITopicsBiz topicBiz = new TopicsBizImpl();
-		this.send(response, 200, topicBiz.findAll());
+	@GetMapping("/findAll")
+	public ResultVO findAll()  {
+		return new ResultVO(200, topicBizImpl.findAll());
 	}
 
-	private void add(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Topics topic = RequestParamUtil.getParams(Topics.class, request);
-
-		ITopicsBiz topicBiz = new TopicsBizImpl();
-		if (topicBiz.add(topic) > 0) {
-			this.send(response, 200, null);
-			return;
+	public ResultVO add(Topics topic) throws IOException {
+		if (topicBizImpl.add(topic) > 0) {
+			return new ResultVO(200);
 		}
-		this.send(response, 500, null);
+		return new ResultVO(500);
 	}
 }

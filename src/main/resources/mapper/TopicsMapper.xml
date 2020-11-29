@@ -3,7 +3,7 @@
  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="Topics">
+<mapper namespace="com.yc.vote.mapper.ITopicsMapper">
 	<insert id="add" parameterType="Topics">
 		insert into topics values(#{tid}, #{tname}, #{types}, #{usid}, #{sdate}, #{edate}, '')
 	</insert>

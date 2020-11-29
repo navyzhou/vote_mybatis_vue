@@ -75,7 +75,7 @@ let app = new Vue({
 		myStatus: [],
 	},
 	mounted: function() {
-		axios.get("topic", {params:{op:"findAll"}}).then(result => {
+		axios.get("topic/findAll").then(result => {
 			if (result.status == 200 && result.data.code == 200) {
 				result.data.data.forEach(function(item, index) {
 					if (item.usids) { // 说明已经有人投票了

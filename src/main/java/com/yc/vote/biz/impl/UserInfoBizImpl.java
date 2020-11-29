@@ -1,9 +1,11 @@
 package com.yc.vote.biz.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.yc.vote.bean.UserInfo;
 import com.yc.vote.biz.IUserInfoBiz;
-import com.yc.vote.dao.IBaseDao;
-import com.yc.vote.dao.impl.BaseDaoImpl;
+import com.yc.vote.mapper.IUserInfoMapper;
 import com.yc.vote.util.StringUtil;
 
 /**
@@ -12,15 +14,17 @@ import com.yc.vote.util.StringUtil;
  * @date 2020年9月3日
  * Email haijunzhou@hnit.edu.cn
  */
+@Service
 public class UserInfoBizImpl implements IUserInfoBiz{
+	@Autowired
+	private IUserInfoMapper userInfoMapper;
+	
 	@Override
 	public int add(UserInfo uf) {
 		if (StringUtil.checkNull(uf.getUname(), uf.getPwd())) {
 			return -1;
 		}
-		
-		IBaseDao baseDao = new BaseDaoImpl();
-		return baseDao.insert("UserInfo.add", uf);
+		return userInfoMapper.add(uf);
 	}
 
 	@Override
@@ -28,8 +32,6 @@ public class UserInfoBizImpl implements IUserInfoBiz{
 		if (StringUtil.checkNull(uf.getUname(), uf.getPwd())) {
 			return null;
 		}
-		
-		IBaseDao baseDao = new BaseDaoImpl();
-		return baseDao.find("UserInfo.login", uf);
+		return userInfoMapper.login(uf);
 	}
 }

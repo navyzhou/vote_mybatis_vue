@@ -1,4 +1,4 @@
-package com.yc.vote.fliter;
+package com.yc.vote.filter;
 
 import java.io.IOException;
 import java.io.PrintWriter;

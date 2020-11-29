@@ -2,61 +2,53 @@ package com.yc.vote.controller;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yc.vote.bean.UserInfo;
 import com.yc.vote.biz.IUserInfoBiz;
-import com.yc.vote.biz.impl.UserInfoBizImpl;
-import com.yc.vote.util.RequestParamUtil;
+import com.yc.vote.vo.ResultVO;
 
-@WebServlet("/user")
-public class UserController extends BasicController{
-	private static final long serialVersionUID = -5977794121141483620L;
+@Controller
+@RequestMapping("/user")
+public class UserController {
+	@Autowired
+	private IUserInfoBiz userInfoBizImpl;
 
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String op = request.getParameter("op");
-		
-		switch (op) {
-		case "reg": reg(request, response); break;
-		case "login": login(request, response); break;
-		case "check": check(request, response); break;
-		default:error(request, response); break;
-		}
-	}
-
-	private void check(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Object obj = request.getSession().getAttribute("currentLoginUser");
+	@GetMapping("/check") // 说明这个方法只能通过GET方式访问
+	@ResponseBody // 说明以json格式返回
+	public ResultVO check(HttpSession session) {
+		Object obj = session.getAttribute("currentLoginUser");
 		if (obj == null) {
-			this.send(response, 500, null);
-			return;
+			return new ResultVO(500);
 		}
-		this.send(response, 200, obj);
+		return new ResultVO(200, obj);
 	}
 
-	private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		UserInfo uf = RequestParamUtil.getParams(UserInfo.class, request);
-		IUserInfoBiz userInfoBiz = new UserInfoBizImpl();
-		UserInfo userInfo = userInfoBiz.login(uf);
+	@PostMapping("/login")
+	@ResponseBody
+	public ResultVO login(UserInfo uf, HttpSession session) {
+		UserInfo userInfo = userInfoBizImpl.login(uf);
 		if (userInfo == null) {
-			this.send(response, 500, null);
-			return;
+			return new ResultVO(500);
 		}
 		
-		request.getSession().setAttribute("currentLoginUser", userInfo);
-		this.send(response, 200, null);
+		session.setAttribute("currentLoginUser", userInfo);
+		return new ResultVO(200);
 	}
 
-	private void reg(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		UserInfo uf = RequestParamUtil.getParams(UserInfo.class, request);
-		IUserInfoBiz userInfoBiz = new UserInfoBizImpl();
-		if (userInfoBiz.add(uf) > 0) {
-			this.send(response, 200, null);
-			return;
+	@PostMapping("/reg")
+	@ResponseBody
+	public ResultVO reg(UserInfo uf) throws IOException {
+		if (userInfoBizImpl.add(uf) > 0) {
+			return new ResultVO(200);
 		}
-		this.send(response, 500, null);
+		return new ResultVO(500);
 	}
 }

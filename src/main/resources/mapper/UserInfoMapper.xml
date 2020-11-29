@@ -3,7 +3,7 @@
  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="UserInfo">
+<mapper namespace="com.yc.vote.mapper.IUserInfoMapper">
 	<insert id="add" parameterType="UserInfo">
 		insert into userinfo values(0, #{uname}, md5(#{pwd}))
 	</insert>

@@ -5,7 +5,7 @@ let login_info = new Vue({
 		loginStatus: false
 	},
 	mounted: function() {
-		axios.post("user", qs.stringify({op:"check"})).then(rt => {
+		axios.get("user/check").then(rt => {
 			if (rt.status == 200 && rt.data.code == 200) {
 				this.loginStatus = true;
 				this.user = rt.data.data;

@@ -79,7 +79,7 @@ let vm = new Vue({
 				return;
 			}
 			
-			axios.post("user", qs.stringify({op:"login", uname:this.uname, pwd:this.pwd})).then(rt => {
+			axios.post("user/login", qs.stringify({uname:this.uname, pwd:this.pwd})).then(rt => {
 				if (rt.data.code == 200) {
 					location.href="manage.html";
 					return;
